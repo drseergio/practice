@@ -1,5 +1,9 @@
 import java.util.Scanner;
 
+/**
+ * Floyd City of Blinding Lights:
+ * https://www.hackerrank.com/challenges/floyd-city-of-blinding-lights
+ */
 public class FloydCityLights {
   private static class DirectedEdge {
     private final int from, to, weight;
