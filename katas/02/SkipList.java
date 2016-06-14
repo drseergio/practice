@@ -1,9 +1,9 @@
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /** Adapted from: https://github.com/spratt/SkipList. **/
-public class SkipList<Key extends Comparable<Key>, Value> implements Iterable<Key> {
+public class SkipList<Key extends Comparable<Key>, Value> {
   private static final double PROBABILITY = 0.5;
 
   private class Node {
@@ -25,8 +25,6 @@ public class SkipList<Key extends Comparable<Key>, Value> implements Iterable<Ke
   private int size;
 
   public SkipList() {
-    size = 0;
-    maxLevel = 0;
     head = new Node(null, null);
     head.nextNodes.add(null); 
     head.prevNodes = null;
@@ -37,14 +35,9 @@ public class SkipList<Key extends Comparable<Key>, Value> implements Iterable<Ke
   }
 
   public Value get(Key key) {
-    Node node = find(key);
-    if (node == null) return null;
-    if (node.key != null && node.key.equals(key)) return node.val;
-    return null;
-  }
-
-  private Node find(Key key) {
-    return find(key, head, maxLevel);
+    Node n = find(key, head, maxLevel);
+    if (n == null || !key.equals(n.key)) return null;
+    return n.val;
   }
 
   private Node find(Key key, Node curr, int level) {
@@ -68,16 +61,15 @@ public class SkipList<Key extends Comparable<Key>, Value> implements Iterable<Ke
   public void put(Key key, Value val) {
     if (val == null) throw new IllegalArgumentException("Value cannot be null");
 
-    Node n = find(key);
-    if (n != null && n.key != null && n.key.equals(key)) {
+    Node n = find(key, head, maxLevel);
+    if (n != null && key.equals(n.key)) {
       n.val = val;
       return;
     }
 
-    size++;
     int level = 0;
-    while (Math.random() < PROBABILITY) level++;
-
+    while (Math.random() < PROBABILITY)
+      level++;
     while (level > maxLevel) {
       head.nextNodes.add(null);
       maxLevel++;
@@ -87,54 +79,41 @@ public class SkipList<Key extends Comparable<Key>, Value> implements Iterable<Ke
     Node curr = head;
     do {
       curr = findNext(key, curr, level);
-      Node newNext = curr.nextNodes.get(level);
-      newNode.nextNodes.add(0, newNext);
-      newNode.prevNodes.add(0, curr);
-      if (newNext != null) newNext.prevNodes.set(level, newNode);
+      Node newNodeNext = curr.nextNodes.get(level);
       curr.nextNodes.set(level, newNode);
+
+      newNode.nextNodes.add(0, newNodeNext);
+      newNode.prevNodes.add(0, curr);
+
+      if (newNodeNext != null) newNodeNext.prevNodes.set(level, newNode);
     } while (level-- > 0);
+
+    size++;
   }
 
   public void delete(Key key) {
-    if (get(key) == null) return;
+    Node n = find(key, head, maxLevel);
+    if (n == null || !key.equals(n.key)) return;
 
-    Node n = find(key);
     for (int i = 0; i < n.prevNodes.size(); i++) {
       Node prev = n.prevNodes.get(i);
       Node newNext = n.nextNodes.get(i);
       prev.nextNodes.set(i, newNext);
       if (newNext != null) newNext.prevNodes.set(i, prev);
     }
-    size--;
-  }
 
-  public Iterator<Key> iterator() {
-    return new SkipListIterator(this);
+    size--;
   }
 
   private boolean less(Key a, Key b) {
     return a.compareTo(b) < 0;
   }
 
-  private class SkipListIterator implements Iterator<Key> {
-    SkipList<Key, Value> list;
-    Node curr;
-
-    public SkipListIterator(SkipList<Key, Value> list) {
-      this.list = list;
-      this.curr = list.head;
-    }
-
-    public boolean hasNext() {
-      return curr.nextNodes.get(0) != null;
-    }
-
-    public Key next() {
-      curr = (Node)curr.nextNodes.get(0);
-      return (Key)curr.key;
-    }
-
-    public void remove() {}
+  public Iterable<Key> keys() {
+    LinkedList<Key> keys = new LinkedList<>();
+    for (Node curr = head.nextNodes.get(0); curr != null; curr = curr.nextNodes.get(0))
+      keys.add(curr.key);
+    return keys;
   }
 
   public static void main(String[] args) {
@@ -148,7 +127,7 @@ public class SkipList<Key extends Comparable<Key>, Value> implements Iterable<Ke
     sl.put(9, "nine");
     System.out.println("size: " + sl.size());
 
-    for (Integer key : sl) {
+    for (Integer key : sl.keys()) {
       System.out.println(key + ": " + sl.get(key));
     }
 
@@ -156,7 +135,7 @@ public class SkipList<Key extends Comparable<Key>, Value> implements Iterable<Ke
     sl.delete(2);
     System.out.println("size after two deletes: " + sl.size());
 
-    for (Integer key : sl) {
+    for (Integer key : sl.keys()) {
       System.out.println(key + ": " + sl.get(key));
     }
   }
