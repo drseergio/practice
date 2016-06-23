@@ -9,14 +9,11 @@ public class SkipList<Key extends Comparable<Key>, Value> {
   private class Node {
     Key key;
     Value val;
-    List<Node> nextNodes;
-    List<Node> prevNodes;
+    List<Node> nextNodes = new ArrayList<>();
+    List<Node> prevNodes = new ArrayList<>();
 
     Node(Key key, Value val) {
-      this.key = key;
-      this.val = val;
-      nextNodes = new ArrayList<>();
-      prevNodes = new ArrayList<>();
+      this.key = key; this.val = val;
     }
   }
 

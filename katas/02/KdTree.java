@@ -26,18 +26,16 @@ public class KdTree {
   private boolean contains(Node node, Point2D p, boolean xcmp) {
     if (node == null) return false;
     else if (node.p.x() == p.x() && node.p.y() == p.y()) return true;
-    else {
-      if (xcmp) {
-        if (p.x() < node.p.x())
-           return contains(node.left, p, !xcmp);
-        else
-           return contains(node.right, p, !xcmp);
-      } else {
-        if (p.y() < node.p.y())
-          return contains(node.left, p, !xcmp);
-        else
-          return contains(node.right, p, !xcmp);
-      }
+    else if (xcmp) {
+      if (p.x() < node.p.x())
+        return contains(node.left, p, !xcmp);
+      else
+         return contains(node.right, p, !xcmp);
+    } else {
+      if (p.y() < node.p.y())
+        return contains(node.left, p, !xcmp);
+      else
+        return contains(node.right, p, !xcmp);
     }
   }
 
@@ -46,12 +44,9 @@ public class KdTree {
   }
 
   private Node insert(Node node, Point2D p, double x0, double y0, double x1, double y1, boolean xcmp) {
-    if (node == null) {
-      RectHV r = new RectHV(x0, y0, x1, y1);
-      return new Node(p, r);
-    } else if (node.p.x() == p.x() && node.p.y() == p.y()) return node;
-
-    if (xcmp) {
+    if (node == null) return new Node(p, new RectHV(x0, y0, x1, y1));
+    else if (node.p.x() == p.x() && node.p.y() == p.y()) return node;
+    else if (xcmp) {
       if (p.x() < node.p.x())
         node.left = insert(node.left, p, x0, y0, node.p.x(), y1, !xcmp);
       else

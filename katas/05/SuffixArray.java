@@ -42,7 +42,7 @@ public class SuffixArray {
     int lo = 0, hi = length() - 1;
     while (lo <= hi) {
       int mid = lo + (hi - lo) / 2;
-      int cmp = Suffix.compare(query, suffixes[mid]);
+      int cmp = query.compareTo(suffixes[mid]);
       if (cmp < 0) hi = mid - 1;
       else if (cmp > 0) lo = mid + 1;
       else return mid;

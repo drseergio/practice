@@ -20,17 +20,13 @@ public class Suffix implements Comparable<Suffix> {
   }
 
   public int compareTo(Suffix that) {
-    return compare(this, that);
-  }
-
-  public static int compare(Suffix a, Suffix b) {
-    if (a == b) return 0;
-    int N = Math.min(a.length(), b.length());
+    if (this == that) return 0;
+    int N = Math.min(this.length(), that.length());
     for (int i = 0; i < N; i++) {
-      if (a.charAt(i) < b.charAt(i)) return -1;
-      if (a.charAt(i) > b.charAt(i)) return +1;
+      if (this.charAt(i) < that.charAt(i)) return -1;
+      if (this.charAt(i) > that.charAt(i)) return +1;
     }
-    return a.length() - b.length();
+    return this.length() - that.length();
   }
 
   public String toString() {
